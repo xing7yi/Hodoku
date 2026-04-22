@@ -1,3 +1,17 @@
 bin/
 .settings/
 legacy/
+
+# Build output
+build/
+dist/
+
+# macOS packaging artifacts
+packaging/icons/hodoku.iconset/
+packaging/icons/hodoku.icns
+
+# macOS junk
+.DS_Store
+
+# HoDoKu log
+*.log
