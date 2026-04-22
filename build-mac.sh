@@ -41,11 +41,13 @@ BUILD_DIR="$SCRIPT_DIR/build/classes"
 DIST_DIR="$SCRIPT_DIR/dist"
 STAGING_DIR="$SCRIPT_DIR/dist/staging"
 JAR_FILE="$STAGING_DIR/Hodoku.jar"
+ICON_PNG="$SRC_DIR/img/hodoku02-256.png"
 ICON_FILE="$SCRIPT_DIR/packaging/icons/hodoku.icns"
+ICON_ICONSET="$SCRIPT_DIR/packaging/icons/hodoku.iconset"
 APP_OUT_DIR="$SCRIPT_DIR/dist"
 
 APP_NAME="HoDoKu"
-APP_VERSION="2.3.2"
+APP_VERSION="2.3.0"
 MAIN_CLASS="sudoku.Main"
 
 # --------------- Argument parsing --------------------------------------------
@@ -111,16 +113,35 @@ MANIFEST
 fi
 
 # =============================================================================
-# 4. Package with jpackage
+# 4. Generate .icns icon
 # =============================================================================
 if $BUILD_APP; then
-  echo ">>> Packaging macOS .app with jpackage (JDK 21)..."
+  echo ">>> Generating .icns icon..."
+  mkdir -p "$ICON_ICONSET"
+  sips -z 16 16   "$ICON_PNG" --out "$ICON_ICONSET/icon_16x16.png"    &>/dev/null
+  sips -z 32 32   "$ICON_PNG" --out "$ICON_ICONSET/icon_16x16@2x.png" &>/dev/null
+  sips -z 32 32   "$ICON_PNG" --out "$ICON_ICONSET/icon_32x32.png"    &>/dev/null
+  sips -z 64 64   "$ICON_PNG" --out "$ICON_ICONSET/icon_32x32@2x.png" &>/dev/null
+  sips -z 128 128 "$ICON_PNG" --out "$ICON_ICONSET/icon_128x128.png"  &>/dev/null
+  sips -z 256 256 "$ICON_PNG" --out "$ICON_ICONSET/icon_128x128@2x.png" &>/dev/null
+  sips -z 256 256 "$ICON_PNG" --out "$ICON_ICONSET/icon_256x256.png"  &>/dev/null
+  sips -z 512 512 "$ICON_PNG" --out "$ICON_ICONSET/icon_256x256@2x.png" &>/dev/null
+  sips -z 512 512 "$ICON_PNG" --out "$ICON_ICONSET/icon_512x512.png"  &>/dev/null
+  iconutil -c icns "$ICON_ICONSET" -o "$ICON_FILE"
+  echo "    Icon: $ICON_FILE"
+fi
 
-  # Remove previous .app if any
-  rm -rf "$APP_OUT_DIR/${APP_NAME}.app"
+# =============================================================================
+# 5. Package with jpackage
+# =============================================================================
+if $BUILD_APP; then
+  echo ">>> Packaging macOS DMG with jpackage (JDK 21)..."
+
+  # Remove previous DMG if any
+  rm -f "$APP_OUT_DIR/${APP_NAME}-${APP_VERSION}.dmg"
 
   "$JPACKAGE" \
-    --type app-image \
+    --type dmg \
     --name "$APP_NAME" \
     --app-version "$APP_VERSION" \
     --input "$STAGING_DIR" \
@@ -138,7 +159,7 @@ if $BUILD_APP; then
 
   echo ""
   echo "========================================="
-  echo "  Built: $APP_OUT_DIR/${APP_NAME}.app"
-  echo "  Open with: open \"$APP_OUT_DIR/${APP_NAME}.app\""
+  echo "  Built: $APP_OUT_DIR/${APP_NAME}-${APP_VERSION}.dmg"
+  echo "  Open with: open \"$APP_OUT_DIR/${APP_NAME}-${APP_VERSION}.dmg\""
   echo "========================================="
 fi
