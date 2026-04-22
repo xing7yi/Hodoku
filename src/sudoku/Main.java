@@ -432,6 +432,22 @@ public class Main {
 			OS_NAME = OS_NAME.toLowerCase();
 		}
 
+		// macOS-specific setup: Retina/HiDPI support and native integration
+		if (OS_NAME != null && OS_NAME.startsWith("mac")) {
+			// Enable Retina (HiDPI) rendering — JDK 8 on macOS respects this system property
+			System.setProperty("apple.awt.graphics.UseQuartz", "true");
+			// Use native macOS menu bar
+			System.setProperty("apple.laf.useScreenMenuBar", "true");
+			// Set the application name shown in the macOS menu bar
+			System.setProperty("apple.awt.application.name", "HoDoKu");
+			// Opt-in to native macOS fullscreen support
+			System.setProperty("apple.awt.fullscreencapturealldisplays", "false");
+			// Suppress background erase during window resize to eliminate
+			// flicker and the brief black bar that appears at the bottom
+			System.setProperty("sun.awt.noerasebackground", "true");
+			System.setProperty("sun.awt.erasebackgroundonresize", "false");
+		}
+
 		// Optionen lesen (macht getInstance())
 		// if a file hodoku.hcfg exists in the directory from where the program
 		// was started, it is loaded automatically
